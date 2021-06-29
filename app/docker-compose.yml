@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+  redis:
+    image: "redis:6.0-alpine"
+    ports:
+      - "6379:6379"
+  mysql:
+    build: ./mysql-conf/
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql-conf/conf.d:/etc/mysql/conf.d
+
+  worker:
+    build: .
+    depends_on:
+      - redis
+      - mysql
+    ports:
+      - "8000:8000"
+    command: "celery -A worker.celery_worker worker -l info"
+  
+  beat:
+    build: .
+    depends_on:
+      - redis
+      - mysql
+    command: "celery -A worker.celery_worker beat -l info"

@@ -1,0 +1,44 @@
+version: "3.9"
+
+services:
+
+  redis:
+    image: "redis:6.0-alpine"
+    ports:
+      - "6379:6379"
+
+  mysql:
+    build: ./app/mysql-conf/
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./app/mysql-conf/conf.d:/etc/mysql/conf.d
+
+  worker:
+    build: ./app/
+    depends_on:
+      - redis
+      - mysql
+    command: "celery -A worker.celery_worker worker -l info"
+  
+  beat:
+    build: ./app/
+    depends_on:
+      - redis
+      - mysql
+    command: "celery -A worker.celery_worker beat -l info"
+
+  fastapi:
+    build: ./web_server/
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mysql
+      - worker
+      - beat
+    command: >
+      /bin/bash -c "
+        sleep 10;
+        echo Holding till dependency setup;
+        uvicorn main:app --host 0.0.0.0;
+      "

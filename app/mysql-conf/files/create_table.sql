@@ -1,0 +1,7 @@
+CREATE DATABASE YouTube_API;
+
+USE YouTube_API;
+
+CREATE TABLE Shorts (title TEXT(200), description TEXT(2000), publishedAt TEXT(50), VID INT AUTO_INCREMENT PRIMARY KEY);
+
+
