@@ -24,7 +24,7 @@ mycursor = db.cursor()
 celery_app.conf.beat_schedule = {
         'youtube-beat': {
             'task': 'youtube_fetch',
-            'schedule': timedelta(seconds=10)
+            'schedule': timedelta(seconds=30)
         },
     }
 
